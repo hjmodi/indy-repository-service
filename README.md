@@ -1,4 +1,6 @@
 # Indy Repository Management Service
+[![Coverage Status Badge]][Coverage Status Link]
+
 Indy Repository Management Service is a single full-functional service for only indy repository management, including repository creation, updating, querying and deleting.
 
 ## Prerequisite for building
@@ -28,7 +30,10 @@ $ mvn clean compile
 ```
 $ docker-compose up
 ```
-2. Start in debug mode
+3. Start in debug mode
 ```
 $ mvn quarkus:dev
 ```
+
+[Coverage Status Badge]: https://coveralls.io/repos/github/hjmodi/indy-repository-service/badge.svg?branch=main
+[Coverage Status Link]: https://coveralls.io/github/hjmodi/indy-repository-service?branch=main

@@ -1,0 +1,57 @@
+name: Unittests
+
+on:
+  pull_request:
+
+  push:
+    branches:
+      - main
+      - release_*
+
+jobs:
+  test:
+    name: Run JDK ${{ matrix.jdk-version }} tests
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        jdk-version: [ "19" ]
+
+    steps:
+      - name: 🧺 Checkout Repository Code
+        uses: actions/checkout@v3
+      - name: 🛠 Set up JDK ${{ matrix.jdk-version }}
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{ matrix.jdk-version }}
+          distribution: 'temurin'
+          cache: maven
+
+      - name: 🚀 Jacoco Coverage Report for JDK ${{ matrix.jdk-version }}
+        run:  mvn clean test jacoco:report --no-transfer-progress
+
+      - name: Run jacoco xml to lcov
+        run: |
+          sudo apt install python3
+          find src/main/java/ > sourcefilelist
+          python3 jacoco_xml_to_lcov.py indy-tracking-service sourcefilelist < target/jacoco-report/jacoco.xml > lcov.info
+
+      - name: Coveralls Parallel
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.github_token }}
+          flag-name: jdk-${{ matrix.jdk-version }}
+          parallel: true
+          path-to-lcov: ./lcov.info
+
+  finish-coveralls:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Coveralls Finished
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.github_token }}
+          parallel-finished: true
+          path-to-lcov: ./lcov.info
